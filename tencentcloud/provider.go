@@ -692,6 +692,7 @@ func Provider() terraform.ResourceProvider {
 			"tencentcloud_monitor_binding_object":         resourceTencentMonitorBindingObject(),
 			"tencentcloud_monitor_binding_receiver":       resourceTencentMonitorBindingAlarmReceiver(),
 			"tencentcloud_elasticsearch_instance":         resourceTencentCloudElasticsearchInstance(),
+			"tencentcloud_api_gateway_api_key":            resourceTencentCloudAPIGatewayAPIKey(),
 		},
 
 		ConfigureFunc: providerConfigure,
