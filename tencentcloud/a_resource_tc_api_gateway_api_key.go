@@ -58,7 +58,7 @@ func resourceTencentCloudAPIGatewayAPIKey() *schema.Resource {
 			"access_key_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "Created API key ID.",
+				Description: "Created API key id, This field is exactly the same as id.",
 			},
 			"access_key_secret": {
 				Type:        schema.TypeString,
@@ -165,17 +165,15 @@ func resourceTencentCloudAPIGatewayAPIKeyRead(data *schema.ResourceData, meta in
 		data.SetId("")
 		return nil
 	}
-	var errs []error
 
-	errs = append(
-		errs,
+	errs := []error{
 		data.Set("secret_name", apiKey.SecretName),
 		data.Set("status", API_GATEWAY_KEY_INT2STRS[*apiKey.Status]),
 		data.Set("access_key_id", apiKey.AccessKeyId),
 		data.Set("access_key_secret", apiKey.AccessKeySecret),
 		data.Set("modify_time", apiKey.ModifiedTime),
 		data.Set("create_time", apiKey.CreatedTime),
-	)
+	}
 
 	for _, err := range errs {
 		if err != nil {

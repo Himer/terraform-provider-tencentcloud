@@ -54,7 +54,7 @@ func TestAccTencentCloudAPIGateWayAPIKeyResource(t *testing.T) {
 
 func testAccCheckAPIGatewayAPIKeyDestroy(s *terraform.State) error {
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != testTcaplusClusterResourceName {
+		if rs.Type != testAPIGatewayAPIKeyResourceName {
 			continue
 		}
 		logId := getLogId(contextNil)
