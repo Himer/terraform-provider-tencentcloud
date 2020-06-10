@@ -59,7 +59,7 @@ func dataSourceTencentCloudAPIGatewayAPIKeys() *schema.Resource {
 				Description: "A list of api keys. Each element contains the following attributes:",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"id": {
+						"api_key_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "API key id.",
@@ -72,7 +72,7 @@ func dataSourceTencentCloudAPIGatewayAPIKeys() *schema.Resource {
 						"access_key_id": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "Created API key id, This field is exactly the same as id.",
+							Description: "Created API key id, This field is exactly the same as `api_key_id`.",
 						},
 						"access_key_secret": {
 							Type:        schema.TypeString,
@@ -124,7 +124,7 @@ func dataSourceTencentCloudAPIGatewayAPIKeysRead(data *schema.ResourceData, meta
 	list := make([]map[string]interface{}, 0, len(apiKeySet))
 	for _, apiKey := range apiKeySet {
 		list = append(list, map[string]interface{}{
-			"id":                apiKey.AccessKeyId,
+			"api_key_id":        apiKey.AccessKeyId,
 			"status":            API_GATEWAY_KEY_INT2STRS[*apiKey.Status],
 			"access_key_id":     apiKey.AccessKeyId,
 			"access_key_secret": apiKey.AccessKeySecret,
@@ -142,7 +142,7 @@ func dataSourceTencentCloudAPIGatewayAPIKeysRead(data *schema.ResourceData, meta
 	}
 
 	if err = data.Set("list", list); err != nil {
-		log.Printf("[CRITAL]%s provider set configuration list fail, reason:%s\n ", logId, err.Error())
+		log.Printf("[CRITAL]%s provider set list fail, reason:%s\n ", logId, err.Error())
 	}
 
 	data.SetId(string(byteId))

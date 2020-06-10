@@ -321,7 +321,7 @@ func resourceTencentCloudAPIGatewayUsagePlanUpdate(data *schema.ResourceData, me
 			usagePlanDesc,
 			maxRequestNum,
 			maxRequestNumPreSec)
-		_=inErr
+		_ = inErr
 		//
 		//if inErr != nil {
 		//	return retryError(inErr)

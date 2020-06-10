@@ -23,7 +23,7 @@ const (
 	API_GATEWAY_TYPE_API     = "API"
 )
 
-var API_GATEWAY_TYPES= []string{
+var API_GATEWAY_TYPES = []string{
 	API_GATEWAY_TYPE_SERVICE,
 	API_GATEWAY_TYPE_API,
 }

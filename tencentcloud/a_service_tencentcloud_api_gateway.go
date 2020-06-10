@@ -291,6 +291,54 @@ func (me *APIGatewayService) DescribeUsagePlanEnvironments(ctx context.Context,
 	}
 }
 
+func (me *APIGatewayService) DescribeUsagePlansStatus(ctx context.Context,
+	usagePlanId string, usagePlanName string) (infos []*apigateway.UsagePlanStatusInfo, errRet error) {
+
+	request := apigateway.NewDescribeUsagePlansStatusRequest()
+
+	if usagePlanId != "" || usagePlanName != "" {
+		request.Filters = make([]*apigateway.Filter, 0, 2)
+		if usagePlanId != "" {
+			request.Filters = append(request.Filters, &apigateway.Filter{Name: helper.String("UsagePlanId"),
+				Values: []*string{
+					&usagePlanId,
+				}})
+		}
+		if usagePlanName != "" {
+			request.Filters = append(request.Filters, &apigateway.Filter{Name: helper.String("UsagePlanName"),
+				Values: []*string{
+					&usagePlanName,
+				}})
+		}
+	}
+
+	var limit int64 = 20
+	var offset int64 = 0
+
+	request.Limit = &limit
+	request.Offset = &offset
+
+	for {
+		ratelimit.Check(request.GetAction())
+		response, err := me.client.UseAPIGatewayClient().DescribeUsagePlansStatus(request)
+		if err != nil {
+			errRet = err
+			return
+		}
+		if response.Response.Result == nil {
+			errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+			return
+		}
+		if len(response.Response.Result.UsagePlanStatusSet) > 0 {
+			infos = append(infos, response.Response.Result.UsagePlanStatusSet...)
+		}
+		if len(response.Response.Result.UsagePlanStatusSet) < int(limit) {
+			return
+		}
+		offset += limit
+	}
+}
+
 func (me *APIGatewayService) BindSecretId(ctx context.Context,
 	usagePlanId string, apiKeyId string) (errRet error) {
 
