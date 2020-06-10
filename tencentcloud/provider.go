@@ -696,6 +696,7 @@ func Provider() terraform.ResourceProvider {
 			"tencentcloud_elasticsearch_instance":         resourceTencentCloudElasticsearchInstance(),
 			"tencentcloud_api_gateway_api_key":            resourceTencentCloudAPIGatewayAPIKey(),
 			"tencentcloud_api_gateway_usage_plan":         resourceTencentCloudAPIGatewayUsagePlan(),
+			"tencentcloud_api_gateway_api_key_attachment": resourceTencentCloudAPIGatewayAPIKeyAttachment(),
 		},
 
 		ConfigureFunc: providerConfigure,

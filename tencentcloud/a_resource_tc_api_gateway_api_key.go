@@ -58,12 +58,12 @@ func resourceTencentCloudAPIGatewayAPIKey() *schema.Resource {
 			"access_key_id": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "Created API key id, This field is exactly the same as id.",
+				Description: "Created api key id, This field is exactly the same as id.",
 			},
 			"access_key_secret": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "Created API key.",
+				Description: "Created api key.",
 			},
 			"modify_time": {
 				Type:        schema.TypeString,
