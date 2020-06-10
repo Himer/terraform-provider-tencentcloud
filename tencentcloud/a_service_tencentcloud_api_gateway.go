@@ -229,14 +229,14 @@ func (me *APIGatewayService) ModifyUsagePlan(ctx context.Context,
 	usagePlanName string,
 	usagePlanDesc *string,
 	maxRequestNum,
-	maxRequestNumPreSec int64)(errRet error){
+	maxRequestNumPreSec int64) (errRet error) {
 
 	request := apigateway.NewModifyUsagePlanRequest()
 	request.UsagePlanId = &usagePlanId
 
 	ratelimit.Check(request.GetAction())
 	request.UsagePlanName = &usagePlanName
-	if usagePlanDesc!=nil{
+	if usagePlanDesc != nil {
 		request.UsagePlanDesc = usagePlanDesc
 	}
 	request.MaxRequestNum = &maxRequestNum
@@ -258,7 +258,7 @@ func (me *APIGatewayService) ModifyUsagePlan(ctx context.Context,
 }
 
 func (me *APIGatewayService) DescribeUsagePlanEnvironments(ctx context.Context,
-	usagePlanId string,bindType string)(list []*apigateway. UsagePlanEnvironment,errRet error)  {
+	usagePlanId string, bindType string) (list []*apigateway.UsagePlanEnvironment, errRet error) {
 
 	request := apigateway.NewDescribeUsagePlanEnvironmentsRequest()
 	request.UsagePlanId = &usagePlanId
@@ -291,10 +291,47 @@ func (me *APIGatewayService) DescribeUsagePlanEnvironments(ctx context.Context,
 	}
 }
 
+func (me *APIGatewayService) BindSecretId(ctx context.Context,
+	usagePlanId string, apiKeyId string) (errRet error) {
 
+	request := apigateway.NewBindSecretIdsRequest()
+	request.UsagePlanId = &usagePlanId
+	request.AccessKeyIds = []*string{&apiKeyId}
 
+	response, err := me.client.UseAPIGatewayClient().BindSecretIds(request)
 
+	if err != nil {
+		return err
+	}
+	if response.Response.Result == nil {
+		return fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+	}
 
+	if !*response.Response.Result {
+		return fmt.Errorf("bind api key to usage plan fail")
+	}
 
+	return
+}
 
+func (me *APIGatewayService) UnBindSecretId(ctx context.Context,
+	usagePlanId string, apiKeyId string) (errRet error) {
+	request := apigateway.NewUnBindSecretIdsRequest()
+	request.UsagePlanId = &usagePlanId
+	request.AccessKeyIds = []*string{&apiKeyId}
 
+	response, err := me.client.UseAPIGatewayClient().UnBindSecretIds(request)
+
+	if err != nil {
+		return err
+	}
+	if response.Response.Result == nil {
+		return fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+	}
+
+	if !*response.Response.Result {
+		return fmt.Errorf("unbind api key to usage plan fail")
+	}
+
+	return
+}

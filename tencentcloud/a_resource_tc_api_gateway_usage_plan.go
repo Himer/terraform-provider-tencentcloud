@@ -1,3 +1,26 @@
+/*
+Use this resource to create api gateway usage plan.
+
+Example Usage
+
+```hcl
+resource "tencentcloud_api_gateway_usage_plan" "plan" {
+  usage_plan_name         = "my_plan"
+  usage_plan_desc         = "nice plan"
+  max_request_num         = 100
+  max_request_num_pre_sec = 10
+}
+```
+
+Import
+
+api gateway usage plan can be imported using the id, e.g.
+
+```
+$ terraform import tencentcloud_api_gateway_usage_plan.plan usagePlan-gyeafpab
+```
+
+*/
 package tencentcloud
 
 import (
@@ -298,6 +321,7 @@ func resourceTencentCloudAPIGatewayUsagePlanUpdate(data *schema.ResourceData, me
 			usagePlanDesc,
 			maxRequestNum,
 			maxRequestNumPreSec)
+		_=inErr
 		//
 		//if inErr != nil {
 		//	return retryError(inErr)
