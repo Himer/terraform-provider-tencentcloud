@@ -138,7 +138,7 @@ func resourceTencentCloudAPIGatewayAPIKeyCreate(data *schema.ResourceData, meta 
 func resourceTencentCloudAPIGatewayAPIKeyRead(data *schema.ResourceData, meta interface{}) error {
 
 	defer logElapsed("resource.tencentcloud_api_gateway_api_key.create")()
-
+	defer inconsistentCheck(data, meta)()
 	var (
 		logId             = getLogId(contextNil)
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
