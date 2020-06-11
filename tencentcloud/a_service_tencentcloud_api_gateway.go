@@ -346,6 +346,7 @@ func (me *APIGatewayService) BindSecretId(ctx context.Context,
 	request.UsagePlanId = &usagePlanId
 	request.AccessKeyIds = []*string{&apiKeyId}
 
+	ratelimit.Check(request.GetAction())
 	response, err := me.client.UseAPIGatewayClient().BindSecretIds(request)
 
 	if err != nil {
@@ -363,11 +364,13 @@ func (me *APIGatewayService) BindSecretId(ctx context.Context,
 }
 
 func (me *APIGatewayService) UnBindSecretId(ctx context.Context,
-	usagePlanId string, apiKeyId string) (errRet error) {
+	usagePlanId string,
+	apiKeyId string) (errRet error) {
 	request := apigateway.NewUnBindSecretIdsRequest()
 	request.UsagePlanId = &usagePlanId
 	request.AccessKeyIds = []*string{&apiKeyId}
 
+	ratelimit.Check(request.GetAction())
 	response, err := me.client.UseAPIGatewayClient().UnBindSecretIds(request)
 
 	if err != nil {
@@ -414,6 +417,7 @@ func (me *APIGatewayService) CreateService(ctx context.Context,
 	}
 	request.NetTypes = helper.Strings(netTypes)
 
+	ratelimit.Check(request.GetAction())
 	response, err := me.client.UseAPIGatewayClient().CreateService(request)
 
 	if err != nil {
@@ -428,6 +432,8 @@ func (me *APIGatewayService) DescribeService(ctx context.Context, serviceId stri
 
 	request := apigateway.NewDescribeServiceRequest()
 	request.ServiceId = &serviceId
+
+	ratelimit.Check(request.GetAction())
 	response, err := me.client.UseAPIGatewayClient().DescribeService(request)
 	if err != nil {
 		if sdkErr, ok := err.(*errors.TencentCloudSDKError); ok && sdkErr.GetCode() == "ResourceNotFound.InvalidService" {
@@ -437,12 +443,12 @@ func (me *APIGatewayService) DescribeService(ctx context.Context, serviceId stri
 		return
 	}
 	info = *response
-	has =true
+	has = true
 	return
 }
 
-func (me *APIGatewayService) ModifyService (ctx context.Context,
-	serviceId ,
+func (me *APIGatewayService) ModifyService(ctx context.Context,
+	serviceId,
 	serviceName,
 	protocol,
 	serviceDesc string,
@@ -455,6 +461,7 @@ func (me *APIGatewayService) ModifyService (ctx context.Context,
 	request.ServiceDesc = &serviceDesc
 	request.NetTypes = helper.Strings(netTypes)
 
+	ratelimit.Check(request.GetAction())
 	_, err := me.client.UseAPIGatewayClient().ModifyService(request)
 	if err != nil {
 		errRet = err
@@ -464,11 +471,12 @@ func (me *APIGatewayService) ModifyService (ctx context.Context,
 }
 
 func (me *APIGatewayService) DeleteService(ctx context.Context,
-	serviceId  string)(errRet error)  {
+	serviceId string) (errRet error) {
 
 	request := apigateway.NewDeleteServiceRequest()
 	request.ServiceId = &serviceId
 
+	ratelimit.Check(request.GetAction())
 	response, err := me.client.UseAPIGatewayClient().DeleteService(request)
 	if err != nil {
 		errRet = err
@@ -485,14 +493,15 @@ func (me *APIGatewayService) DeleteService(ctx context.Context,
 	return
 }
 
-func (me *APIGatewayService)UnReleaseService(ctx context.Context,
-	serviceId  string,
-	environment string)(errRet error)  {
+func (me *APIGatewayService) UnReleaseService(ctx context.Context,
+	serviceId string,
+	environment string) (errRet error) {
 
 	request := apigateway.NewUnReleaseServiceRequest()
 	request.ServiceId = &serviceId
 	request.EnvironmentName = &environment
 
+	ratelimit.Check(request.GetAction())
 	response, err := me.client.UseAPIGatewayClient().UnReleaseService(request)
 	if err != nil {
 		errRet = err
@@ -503,9 +512,149 @@ func (me *APIGatewayService)UnReleaseService(ctx context.Context,
 	}
 
 	if !*response.Response.Result {
-		return fmt.Errorf("unrelease service %s.%s fail",serviceId,environment)
+		return fmt.Errorf("unrelease service %s.%s fail", serviceId, environment)
+	}
+	return
+}
+
+func (me *APIGatewayService) DescribeServiceUsagePlan(ctx context.Context,
+	serviceId string) (list []*apigateway.ApiUsagePlan, errRet error) {
+
+	request := apigateway.NewDescribeServiceUsagePlanRequest()
+	request.ServiceId = &serviceId
+
+	var limit int64 = 20
+	var offset int64 = 0
+
+	request.Limit = &limit
+	request.Offset = &offset
+
+	for {
+		ratelimit.Check(request.GetAction())
+		response, err := me.client.UseAPIGatewayClient().DescribeServiceUsagePlan(request)
+		if err != nil {
+			errRet = err
+			return
+		}
+		if response.Response.Result == nil {
+			errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+			return
+		}
+		if len(response.Response.Result.ServiceUsagePlanList) > 0 {
+			list = append(list, response.Response.Result.ServiceUsagePlanList...)
+		}
+		if len(response.Response.Result.ServiceUsagePlanList) < int(limit) {
+			return
+		}
+		offset += limit
+	}
+}
+
+
+func (me *APIGatewayService) DescribeApiUsagePlan(ctx context.Context,
+	serviceId string) (list []*apigateway.ApiUsagePlan, errRet error) {
+
+	request := apigateway.NewDescribeApiUsagePlanRequest()
+	request.ServiceId = &serviceId
+
+	var limit int64 = 20
+	var offset int64 = 0
+
+	request.Limit = &limit
+	request.Offset = &offset
+
+	for {
+		ratelimit.Check(request.GetAction())
+		response, err := me.client.UseAPIGatewayClient().DescribeApiUsagePlan(request)
+		if err != nil {
+			errRet = err
+			return
+		}
+		if response.Response.Result == nil {
+			errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+			return
+		}
+		if len(response.Response.Result.ApiUsagePlanList) > 0 {
+			list = append(list, response.Response.Result.ApiUsagePlanList...)
+		}
+		if len(response.Response.Result.ApiUsagePlanList) < int(limit) {
+			return
+		}
+		offset += limit
+	}
+}
+
+
+func (me *APIGatewayService) BindEnvironment(ctx context.Context,
+	serviceId,
+	usagePlanId,
+	environment,
+	bindType ,
+	apiId string) (errRet error) {
+
+	request := apigateway.NewBindEnvironmentRequest()
+	request.ServiceId = &serviceId
+	request.UsagePlanIds = []*string{&usagePlanId}
+	request.Environment = &environment
+	request.BindType = &bindType
+
+	if bindType == API_GATEWAY_TYPE_API {
+		request.ApiIds = []*string{&apiId}
 	}
 
-	return
+	ratelimit.Check(request.GetAction())
+
+	response, err := me.client.UseAPIGatewayClient().BindEnvironment(request)
+	if err != nil {
+		errRet = err
+		return
+	}
+
+	if response.Response.Result == nil {
+		errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+		return
+	}
+
+	if !*response.Response.Result {
+		return fmt.Errorf("%s attach to %s.%s fail", usagePlanId, serviceId,apiId)
+	}
+	return nil
+}
+
+func (me *APIGatewayService)UnBindEnvironment (ctx context.Context,
+	serviceId,
+	usagePlanId,
+	environment,
+	bindType ,
+	apiId string)(errRet error)  {
+
+	request := apigateway.NewUnBindEnvironmentRequest()
+	request.ServiceId = &serviceId
+	request.UsagePlanIds = []*string{&usagePlanId}
+	request.Environment = &environment
+	request.BindType = &bindType
+
+	if bindType == API_GATEWAY_TYPE_API {
+		request.ApiIds = []*string{&apiId}
+	}
+
+	ratelimit.Check(request.GetAction())
+
+	response, err := me.client.UseAPIGatewayClient().UnBindEnvironment(request)
+	if err != nil {
+		errRet = err
+		return
+	}
+
+	if response.Response.Result == nil {
+		errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+		return
+	}
+
+	if !*response.Response.Result {
+		return fmt.Errorf("%s unattach to %s.%s fail", usagePlanId, serviceId,apiId)
+	}
+	return nil
+
 }
 

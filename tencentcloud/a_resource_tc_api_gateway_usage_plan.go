@@ -213,7 +213,7 @@ func resourceTencentCloudAPIGatewayUsagePlanCreate(data *schema.ResourceData, me
 }
 func resourceTencentCloudAPIGatewayUsagePlanRead(data *schema.ResourceData, meta interface{}) error {
 
-	defer logElapsed("resource.tencentcloud_api_gateway_usage_plan.create")()
+	defer logElapsed("resource.tencentcloud_api_gateway_usage_plan.read")()
 	defer inconsistentCheck(data, meta)()
 
 	var (

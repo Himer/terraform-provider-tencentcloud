@@ -125,6 +125,25 @@ func resourceTencentCloudAPIGatewayService() *schema.Resource {
 				Computed:    true,
 				Description: "Creation time in the format of YYYY-MM-DDThh:mm:ssZ according to ISO 8601 standard. UTC time is used.",
 			},
+			"usage_plan_list": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "A list of attach usage plans. Each element contains the following attributes:",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"usage_plan_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "ID of the usage plan.",
+						},
+						"usage_plan_name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Name of the usage plan.",
+						},
+					},
+				},
+			},
 			"api_list": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -271,6 +290,59 @@ func resourceTencentCloudAPIGatewayServiceRead(data *schema.ResourceData, meta i
 				"method":   item.Method,
 			})
 	}
+
+	var plans []*apigateway.ApiUsagePlan
+
+	var planList = make([]map[string]interface{}, 0, len(info.Response.ApiIdStatusSet))
+	var hasContains = make(map[string]bool)
+
+	//from service
+	if outErr = resource.Retry(readRetryTimeout, func() *resource.RetryError {
+		plans, inErr = apiGatewayService.DescribeServiceUsagePlan(ctx, serviceId)
+		if inErr != nil {
+			return retryError(inErr, InternalError)
+		}
+		return nil
+	}); outErr != nil {
+		return outErr
+	}
+
+	for _, item := range plans {
+		if hasContains[*item.UsagePlanId] {
+			continue
+		}
+		hasContains[*item.UsagePlanId] = true
+		planList = append(
+			planList, map[string]interface{}{
+				"usage_plan_id":   item.UsagePlanId,
+				"usage_plan_name": item.UsagePlanName,
+			})
+	}
+
+	//from api
+	if outErr = resource.Retry(readRetryTimeout, func() *resource.RetryError {
+		plans, inErr = apiGatewayService.DescribeApiUsagePlan(ctx, serviceId)
+		if inErr != nil {
+			return retryError(inErr, InternalError)
+		}
+		return nil
+	}); outErr != nil {
+		return outErr
+	}
+
+	for _, item := range plans {
+		if hasContains[*item.UsagePlanId] {
+			continue
+		}
+		hasContains[*item.UsagePlanId] = true
+		planList = append(
+			planList, map[string]interface{}{
+				"usage_plan_id":   item.UsagePlanId,
+				"usage_plan_name": item.UsagePlanName,
+			})
+	}
+
+
 	errs := []error{
 		data.Set("service_name", info.Response.ServiceName),
 		data.Set("protocol", info.Response.Protocol),
@@ -285,6 +357,7 @@ func resourceTencentCloudAPIGatewayServiceRead(data *schema.ResourceData, meta i
 		data.Set("modify_time", info.Response.ModifiedTime),
 		data.Set("create_time", info.Response.CreatedTime),
 		data.Set("api_list", apiList),
+		data.Set("usage_plan_list", planList),
 	}
 	for _, err := range errs {
 		if err != nil {
@@ -344,7 +417,7 @@ func resourceTencentCloudAPIGatewayServiceDelete(data *schema.ResourceData, meta
 		inErr, outErr     error
 	)
 
-	for _,env:=range API_GATEWAY_SERVICE_ENVS{
+	for _, env := range API_GATEWAY_SERVICE_ENVS {
 		outErr = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
 			if inErr = apiGatewayService.UnReleaseService(ctx,
 				serviceId,
