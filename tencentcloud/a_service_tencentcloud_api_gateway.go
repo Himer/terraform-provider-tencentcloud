@@ -383,3 +383,129 @@ func (me *APIGatewayService) UnBindSecretId(ctx context.Context,
 
 	return
 }
+
+func (me *APIGatewayService) CreateService(ctx context.Context,
+	serviceName,
+	protocol,
+	serviceDesc,
+	exclusiveSetName,
+	ipVersion,
+	setServerName,
+	appidType string,
+	netTypes []string) (serviceId string, errRet error) {
+
+	request := apigateway.NewCreateServiceRequest()
+	request.ServiceName = &serviceName
+	request.Protocol = &protocol
+	if serviceDesc != "" {
+		request.ServiceDesc = &serviceDesc
+	}
+	if exclusiveSetName != "" {
+		request.ExclusiveSetName = &exclusiveSetName
+	}
+	if ipVersion != "" {
+		request.IpVersion = &ipVersion
+	}
+	if appidType != "" {
+		request.AppIdType = &appidType
+	}
+	if setServerName != "" {
+		request.SetServerName = &setServerName
+	}
+	request.NetTypes = helper.Strings(netTypes)
+
+	response, err := me.client.UseAPIGatewayClient().CreateService(request)
+
+	if err != nil {
+		errRet = err
+		return
+	}
+	serviceId = *response.Response.ServiceId
+	return
+}
+
+func (me *APIGatewayService) DescribeService(ctx context.Context, serviceId string) (info apigateway.DescribeServiceResponse, has bool, errRet error) {
+
+	request := apigateway.NewDescribeServiceRequest()
+	request.ServiceId = &serviceId
+	response, err := me.client.UseAPIGatewayClient().DescribeService(request)
+	if err != nil {
+		if sdkErr, ok := err.(*errors.TencentCloudSDKError); ok && sdkErr.GetCode() == "ResourceNotFound.InvalidService" {
+			return
+		}
+		errRet = err
+		return
+	}
+	info = *response
+	has =true
+	return
+}
+
+func (me *APIGatewayService) ModifyService (ctx context.Context,
+	serviceId ,
+	serviceName,
+	protocol,
+	serviceDesc string,
+	netTypes []string) (errRet error) {
+
+	request := apigateway.NewModifyServiceRequest()
+	request.ServiceId = &serviceId
+	request.ServiceName = &serviceName
+	request.Protocol = &protocol
+	request.ServiceDesc = &serviceDesc
+	request.NetTypes = helper.Strings(netTypes)
+
+	_, err := me.client.UseAPIGatewayClient().ModifyService(request)
+	if err != nil {
+		errRet = err
+		return
+	}
+	return
+}
+
+func (me *APIGatewayService) DeleteService(ctx context.Context,
+	serviceId  string)(errRet error)  {
+
+	request := apigateway.NewDeleteServiceRequest()
+	request.ServiceId = &serviceId
+
+	response, err := me.client.UseAPIGatewayClient().DeleteService(request)
+	if err != nil {
+		errRet = err
+		return
+	}
+	if response.Response.Result == nil {
+		return fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+	}
+
+	if !*response.Response.Result {
+		return fmt.Errorf("delete service fail")
+	}
+
+	return
+}
+
+func (me *APIGatewayService)UnReleaseService(ctx context.Context,
+	serviceId  string,
+	environment string)(errRet error)  {
+
+	request := apigateway.NewUnReleaseServiceRequest()
+	request.ServiceId = &serviceId
+	request.EnvironmentName = &environment
+
+	response, err := me.client.UseAPIGatewayClient().UnReleaseService(request)
+	if err != nil {
+		errRet = err
+		return
+	}
+	if response.Response.Result == nil {
+		return fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+	}
+
+	if !*response.Response.Result {
+		return fmt.Errorf("unrelease service %s.%s fail",serviceId,environment)
+	}
+
+	return
+}
+

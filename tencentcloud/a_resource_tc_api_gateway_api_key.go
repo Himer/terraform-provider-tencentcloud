@@ -112,7 +112,7 @@ func resourceTencentCloudAPIGatewayAPIKeyCreate(data *schema.ResourceData, meta 
 	if outErr := resource.Retry(readRetryTimeout, func() *resource.RetryError {
 		_, has, inErr := apiGatewayService.DescribeApiKey(ctx, accessKeyId)
 		if inErr != nil {
-			return retryError(inErr)
+			return retryError(inErr,InternalError)
 		}
 		if has {
 			return nil
@@ -127,7 +127,7 @@ func resourceTencentCloudAPIGatewayAPIKeyCreate(data *schema.ResourceData, meta 
 	if statusStr == API_GATEWAY_KEY_DISABLED {
 		outErr = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
 			if inErr = apiGatewayService.DisableApiKey(ctx, accessKeyId); inErr != nil {
-				return retryError(inErr)
+				return retryError(inErr,InternalError)
 			}
 			return nil
 		})
@@ -154,7 +154,7 @@ func resourceTencentCloudAPIGatewayAPIKeyRead(data *schema.ResourceData, meta in
 	if outErr := resource.Retry(readRetryTimeout, func() *resource.RetryError {
 		apiKey, has, inErr = apiGatewayService.DescribeApiKey(ctx, accessKeyId)
 		if inErr != nil {
-			return retryError(inErr)
+			return retryError(inErr,InternalError)
 		}
 		return nil
 	}); outErr != nil {
@@ -206,7 +206,7 @@ func resourceTencentCloudAPIGatewayAPIKeyUpdate(data *schema.ResourceData, meta 
 				inErr = apiGatewayService.EnableApiKey(ctx, accessKeyId)
 			}
 			if inErr != nil {
-				return retryError(inErr)
+				return retryError(inErr,InternalError)
 			}
 			return nil
 		}); outErr != nil {
@@ -230,7 +230,7 @@ func resourceTencentCloudAPIGatewayAPIKeyDelete(data *schema.ResourceData, meta 
 	if data.Get("status") != API_GATEWAY_KEY_DISABLED {
 		if outErr := resource.Retry(writeRetryTimeout, func() *resource.RetryError {
 			if inErr := apiGatewayService.DisableApiKey(ctx, accessKeyId); inErr != nil {
-				return retryError(inErr)
+				return retryError(inErr,InternalError)
 			}
 			return nil
 		}); outErr != nil {
@@ -241,7 +241,7 @@ func resourceTencentCloudAPIGatewayAPIKeyDelete(data *schema.ResourceData, meta 
 	return resource.Retry(writeRetryTimeout, func() *resource.RetryError {
 		inErr := apiGatewayService.DeleteApiKey(ctx, accessKeyId)
 		if inErr != nil {
-			return retryError(inErr)
+			return retryError(inErr,InternalError)
 		}
 		return nil
 	})

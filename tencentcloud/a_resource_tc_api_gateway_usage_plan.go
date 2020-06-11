@@ -197,7 +197,7 @@ func resourceTencentCloudAPIGatewayUsagePlanCreate(data *schema.ResourceData, me
 	if outErr := resource.Retry(readRetryTimeout, func() *resource.RetryError {
 		_, has, inErr := apiGatewayService.DescribeUsagePlan(ctx, usagePlanId)
 		if inErr != nil {
-			return retryError(inErr)
+			return retryError(inErr,InternalError)
 		}
 		if has {
 			return nil
@@ -232,7 +232,7 @@ func resourceTencentCloudAPIGatewayUsagePlanRead(data *schema.ResourceData, meta
 	if outErr := resource.Retry(readRetryTimeout, func() *resource.RetryError {
 		info, has, inErr = apiGatewayService.DescribeUsagePlan(ctx, usagePlanId)
 		if inErr != nil {
-			return retryError(inErr)
+			return retryError(inErr,InternalError)
 		}
 		return nil
 	}); outErr != nil {
@@ -249,7 +249,7 @@ func resourceTencentCloudAPIGatewayUsagePlanRead(data *schema.ResourceData, meta
 		if outErr := resource.Retry(readRetryTimeout, func() *resource.RetryError {
 			list, inErr := apiGatewayService.DescribeUsagePlanEnvironments(ctx, usagePlanId, bindType)
 			if inErr != nil {
-				return retryError(inErr)
+				return retryError(inErr,InternalError)
 			}
 			attachList = append(attachList, list...)
 			return nil
@@ -347,7 +347,7 @@ func resourceTencentCloudAPIGatewayUsagePlanDelete(data *schema.ResourceData, me
 	return resource.Retry(writeRetryTimeout, func() *resource.RetryError {
 		inErr := apiGatewayService.DeleteUsagePlan(ctx, usagePlanId)
 		if inErr != nil {
-			return retryError(inErr)
+			return retryError(inErr,InternalError)
 		}
 		return nil
 	})
