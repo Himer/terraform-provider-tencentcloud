@@ -141,6 +141,11 @@ func resourceTencentCloudAPIGatewayService() *schema.Resource {
 							Computed:    true,
 							Description: "Name of the usage plan.",
 						},
+						"bind_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Binding type.",
+						},
 					},
 				},
 			},
@@ -316,10 +321,12 @@ func resourceTencentCloudAPIGatewayServiceRead(data *schema.ResourceData, meta i
 			planList, map[string]interface{}{
 				"usage_plan_id":   item.UsagePlanId,
 				"usage_plan_name": item.UsagePlanName,
+				"bind_type":       API_GATEWAY_TYPE_SERVICE,
 			})
 	}
 
 	//from api
+
 	if outErr = resource.Retry(readRetryTimeout, func() *resource.RetryError {
 		plans, inErr = apiGatewayService.DescribeApiUsagePlan(ctx, serviceId)
 		if inErr != nil {
@@ -330,6 +337,8 @@ func resourceTencentCloudAPIGatewayServiceRead(data *schema.ResourceData, meta i
 		return outErr
 	}
 
+	hasContains = make(map[string]bool)
+
 	for _, item := range plans {
 		if hasContains[*item.UsagePlanId] {
 			continue
@@ -339,9 +348,9 @@ func resourceTencentCloudAPIGatewayServiceRead(data *schema.ResourceData, meta i
 			planList, map[string]interface{}{
 				"usage_plan_id":   item.UsagePlanId,
 				"usage_plan_name": item.UsagePlanName,
+				"bind_type":       API_GATEWAY_TYPE_API,
 			})
 	}
-
 
 	errs := []error{
 		data.Set("service_name", info.Response.ServiceName),
