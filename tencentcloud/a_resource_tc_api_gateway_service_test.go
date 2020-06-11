@@ -28,7 +28,6 @@ func TestAccTencentCloudAPIGatewayServiceResource(t *testing.T) {
 					resource.TestCheckResourceAttr(testAPIGatewayServiceResourceKey, "ip_version", "IPv4"),
 					resource.TestCheckResourceAttrSet(testAPIGatewayServiceResourceKey, "create_time"),
 					resource.TestCheckResourceAttrSet(testAPIGatewayServiceResourceKey, "internal_sub_domain"),
-					resource.TestCheckResourceAttrSet(testAPIGatewayServiceResourceKey, "outer_sub_domain"),
 					resource.TestCheckResourceAttrSet(testAPIGatewayServiceResourceKey, "inner_http_port"),
 				),
 			},
@@ -47,6 +46,7 @@ func TestAccTencentCloudAPIGatewayServiceResource(t *testing.T) {
 					resource.TestCheckResourceAttr(testAPIGatewayServiceResourceKey, "service_desc", "your nice service"),
 					resource.TestCheckResourceAttr(testAPIGatewayServiceResourceKey, "ip_version", "IPv4"),
 					resource.TestCheckResourceAttrSet(testAPIGatewayServiceResourceKey, "create_time"),
+					resource.TestCheckResourceAttrSet(testAPIGatewayServiceResourceKey, "modify_time"),
 					resource.TestCheckResourceAttrSet(testAPIGatewayServiceResourceKey, "internal_sub_domain"),
 					resource.TestCheckResourceAttrSet(testAPIGatewayServiceResourceKey, "outer_sub_domain"),
 					resource.TestCheckResourceAttrSet(testAPIGatewayServiceResourceKey, "inner_http_port"),
@@ -113,7 +113,7 @@ resource "tencentcloud_api_gateway_service" "service" {
   service_name = "myservice"
   protocol     = "http"
   service_desc = "my nice service"
-  net_type     = ["INNER", "OUTER"]
+  net_type     = ["INNER"]
   ip_version   = "IPv4"
 }
 `
