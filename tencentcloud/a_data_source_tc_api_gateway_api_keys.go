@@ -114,7 +114,7 @@ func dataSourceTencentCloudAPIGatewayAPIKeysRead(data *schema.ResourceData, meta
 	if outErr := resource.Retry(writeRetryTimeout, func() *resource.RetryError {
 		apiKeySet, inErr = apiGatewayService.DescribeApiKeysStatus(ctx, secretName, accessKeyId)
 		if inErr != nil {
-			return retryError(inErr)
+			return retryError(inErr,InternalError)
 		}
 		return nil
 	}); outErr != nil {

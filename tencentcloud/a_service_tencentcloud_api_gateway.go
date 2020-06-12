@@ -550,7 +550,6 @@ func (me *APIGatewayService) DescribeServiceUsagePlan(ctx context.Context,
 	}
 }
 
-
 func (me *APIGatewayService) DescribeApiUsagePlan(ctx context.Context,
 	serviceId string) (list []*apigateway.ApiUsagePlan, errRet error) {
 
@@ -584,12 +583,11 @@ func (me *APIGatewayService) DescribeApiUsagePlan(ctx context.Context,
 	}
 }
 
-
 func (me *APIGatewayService) BindEnvironment(ctx context.Context,
 	serviceId,
 	usagePlanId,
 	environment,
-	bindType ,
+	bindType,
 	apiId string) (errRet error) {
 
 	request := apigateway.NewBindEnvironmentRequest()
@@ -616,17 +614,17 @@ func (me *APIGatewayService) BindEnvironment(ctx context.Context,
 	}
 
 	if !*response.Response.Result {
-		return fmt.Errorf("%s attach to %s.%s fail", usagePlanId, serviceId,apiId)
+		return fmt.Errorf("%s attach to %s.%s fail", usagePlanId, serviceId, apiId)
 	}
 	return nil
 }
 
-func (me *APIGatewayService)UnBindEnvironment (ctx context.Context,
+func (me *APIGatewayService) UnBindEnvironment(ctx context.Context,
 	serviceId,
 	usagePlanId,
 	environment,
-	bindType ,
-	apiId string)(errRet error)  {
+	bindType,
+	apiId string) (errRet error) {
 
 	request := apigateway.NewUnBindEnvironmentRequest()
 	request.ServiceId = &serviceId
@@ -652,9 +650,56 @@ func (me *APIGatewayService)UnBindEnvironment (ctx context.Context,
 	}
 
 	if !*response.Response.Result {
-		return fmt.Errorf("%s unattach to %s.%s fail", usagePlanId, serviceId,apiId)
+		return fmt.Errorf("%s unattach to %s.%s fail", usagePlanId, serviceId, apiId)
 	}
 	return nil
-
 }
 
+func (me *APIGatewayService) DescribeServicesStatus(ctx context.Context,
+	serviceId,
+	serviceName string) (infos []*apigateway.Service, errRet error) {
+
+	request := apigateway.NewDescribeServicesStatusRequest()
+
+	if serviceId != "" || serviceName != "" {
+		request.Filters = make([]*apigateway.Filter, 0, 2)
+		if serviceId != "" {
+			request.Filters = append(request.Filters, &apigateway.Filter{Name: helper.String("ServiceId"),
+				Values: []*string{
+					&serviceId,
+				}})
+		}
+		if serviceName != "" {
+			request.Filters = append(request.Filters, &apigateway.Filter{Name: helper.String("ServiceName"),
+				Values: []*string{
+					&serviceName,
+				}})
+		}
+	}
+
+	var limit int64 = 20
+	var offset int64 = 0
+
+	request.Limit = &limit
+	request.Offset = &offset
+
+	for {
+		ratelimit.Check(request.GetAction())
+		response, err := me.client.UseAPIGatewayClient().DescribeServicesStatus(request)
+		if err != nil {
+			errRet = err
+			return
+		}
+		if response.Response.Result == nil {
+			errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+			return
+		}
+		if len(response.Response.Result.ServiceSet) > 0 {
+			infos = append(infos, response.Response.Result.ServiceSet...)
+		}
+		if len(response.Response.Result.ServiceSet) < int(limit) {
+			return
+		}
+		offset += limit
+	}
+}

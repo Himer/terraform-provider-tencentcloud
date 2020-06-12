@@ -146,6 +146,11 @@ func resourceTencentCloudAPIGatewayService() *schema.Resource {
 							Computed:    true,
 							Description: "Binding type.",
 						},
+						"api_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "ID of the api.",
+						},
 					},
 				},
 			},
@@ -322,6 +327,7 @@ func resourceTencentCloudAPIGatewayServiceRead(data *schema.ResourceData, meta i
 				"usage_plan_id":   item.UsagePlanId,
 				"usage_plan_name": item.UsagePlanName,
 				"bind_type":       API_GATEWAY_TYPE_SERVICE,
+				"api_id": "",
 			})
 	}
 
@@ -337,18 +343,13 @@ func resourceTencentCloudAPIGatewayServiceRead(data *schema.ResourceData, meta i
 		return outErr
 	}
 
-	hasContains = make(map[string]bool)
-
 	for _, item := range plans {
-		if hasContains[*item.UsagePlanId] {
-			continue
-		}
-		hasContains[*item.UsagePlanId] = true
 		planList = append(
 			planList, map[string]interface{}{
 				"usage_plan_id":   item.UsagePlanId,
 				"usage_plan_name": item.UsagePlanName,
 				"bind_type":       API_GATEWAY_TYPE_API,
+				"api_id": item.ApiId,
 			})
 	}
 
