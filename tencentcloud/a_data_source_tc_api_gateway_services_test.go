@@ -6,7 +6,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 )
 
-
 var testAPIGatewayServicesDataSourceName = "data.tencentcloud_api_gateway_services"
 
 func TestAccTencentAPIGatewayServicesDataSource(t *testing.T) {
@@ -35,17 +34,16 @@ func TestAccTencentAPIGatewayServicesDataSource(t *testing.T) {
 					resource.TestCheckResourceAttr(testAPIGatewayServicesDataSourceName+".id", "list.#", "1"),
 					resource.TestCheckResourceAttrSet(testAPIGatewayServicesDataSourceName+".id", "list.#"),
 					resource.TestCheckResourceAttrSet(testAPIGatewayServicesDataSourceName+".id", "list.0.service_id"),
-					resource.TestCheckResourceAttr(testAPIGatewayServicesDataSourceName+".id", "list.0.service_name","niceservice"),
-					resource.TestCheckResourceAttr(testAPIGatewayServicesDataSourceName+".id", "list.0.service_desc","your nice service"),
+					resource.TestCheckResourceAttr(testAPIGatewayServicesDataSourceName+".id", "list.0.service_name", "niceservice"),
+					resource.TestCheckResourceAttr(testAPIGatewayServicesDataSourceName+".id", "list.0.service_desc", "your nice service"),
 					resource.TestCheckResourceAttrSet(testAPIGatewayServicesDataSourceName+".id", "list.0.create_time"),
 					resource.TestCheckResourceAttrSet(testAPIGatewayServicesDataSourceName+".id", "list.0.inner_http_port"),
 					resource.TestCheckResourceAttrSet(testAPIGatewayServicesDataSourceName+".id", "list.0.inner_https_port"),
 					resource.TestCheckResourceAttrSet(testAPIGatewayServicesDataSourceName+".id", "list.0.internal_sub_domain"),
-					resource.TestCheckResourceAttr(testAPIGatewayServicesDataSourceName+".id", "list.0.ip_version","IPv4"),
+					resource.TestCheckResourceAttr(testAPIGatewayServicesDataSourceName+".id", "list.0.ip_version", "IPv4"),
 					resource.TestCheckResourceAttrSet(testAPIGatewayServicesDataSourceName+".id", "list.0.net_type.#"),
 					resource.TestCheckResourceAttrSet(testAPIGatewayServicesDataSourceName+".id", "list.0.outer_sub_domain"),
-					resource.TestCheckResourceAttr(testAPIGatewayServicesDataSourceName+".id", "list.0.protocol","http&https"),
-
+					resource.TestCheckResourceAttr(testAPIGatewayServicesDataSourceName+".id", "list.0.protocol", "http&https"),
 				),
 			},
 		},

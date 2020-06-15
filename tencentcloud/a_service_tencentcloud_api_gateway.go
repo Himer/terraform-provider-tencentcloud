@@ -655,6 +655,57 @@ func (me *APIGatewayService) UnBindEnvironment(ctx context.Context,
 	return nil
 }
 
+func (me *APIGatewayService) DescribeApi(ctx context.Context,
+	serviceId,
+	apiId string) (info apigateway.ApiInfo, has bool, errRet error) {
+
+	request := apigateway.NewDescribeApiRequest()
+	request.ServiceId = &serviceId
+	request.ApiId = &apiId
+
+	ratelimit.Check(request.GetAction())
+
+	response, err := me.client.UseAPIGatewayClient().DescribeApi(request)
+	if err != nil {
+		if sdkErr, ok := err.(*errors.TencentCloudSDKError); ok &&
+			(sdkErr.GetCode() == "ResourceNotFound.InvalidService" || sdkErr.GetCode() == "ResourceNotFound.InvalidApi") {
+			return
+		}
+		errRet = err
+		return
+	}
+
+	if response.Response.Result == nil {
+		errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+		return
+	}
+
+	has = true
+	info = *response.Response.Result
+	return
+}
+
+func (me *APIGatewayService) DeleteApi(ctx context.Context, serviceId,
+	apiId string) (errRet error) {
+	request := apigateway.NewDeleteApiRequest()
+	request.ServiceId = &serviceId
+	request.ApiId = &apiId
+	ratelimit.Check(request.GetAction())
+	response, err := me.client.UseAPIGatewayClient().DeleteApi(request)
+	if err != nil {
+		errRet = err
+		return
+	}
+	if response.Response.Result == nil {
+		errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+		return
+	}
+	if *response.Response.Result {
+		return
+	}
+	return fmt.Errorf("delete api fail")
+}
+
 func (me *APIGatewayService) DescribeServicesStatus(ctx context.Context,
 	serviceId,
 	serviceName string) (infos []*apigateway.Service, errRet error) {

@@ -327,7 +327,7 @@ func resourceTencentCloudAPIGatewayServiceRead(data *schema.ResourceData, meta i
 				"usage_plan_id":   item.UsagePlanId,
 				"usage_plan_name": item.UsagePlanName,
 				"bind_type":       API_GATEWAY_TYPE_SERVICE,
-				"api_id": "",
+				"api_id":          "",
 			})
 	}
 
@@ -349,7 +349,7 @@ func resourceTencentCloudAPIGatewayServiceRead(data *schema.ResourceData, meta i
 				"usage_plan_id":   item.UsagePlanId,
 				"usage_plan_name": item.UsagePlanName,
 				"bind_type":       API_GATEWAY_TYPE_API,
-				"api_id": item.ApiId,
+				"api_id":          item.ApiId,
 			})
 	}
 

@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"testing"
-	apigateway "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/apigateway/v20180808"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	apigateway "github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/apigateway/v20180808"
+	"testing"
 )
 
 var testAPIGatewayUsagePlanAttachmentResourceName = "tencentcloud_api_gateway_usage_plan_attachment"
@@ -25,8 +25,8 @@ func TestAccTencentCloudAPIGateWayUsagePlanAttachmentResource(t *testing.T) {
 					testAccCheckAPIGatewayUsagePlanAttachmentExists(testAPIGatewayUsagePlanAttachmentResourceKey),
 					resource.TestCheckResourceAttrSet(testAPIGatewayUsagePlanAttachmentResourceKey, "usage_plan_id"),
 					resource.TestCheckResourceAttrSet(testAPIGatewayUsagePlanAttachmentResourceKey, "service_id"),
-					resource.TestCheckResourceAttr(testAPIGatewayUsagePlanAttachmentResourceKey, "environment","test"),
-					resource.TestCheckResourceAttr(testAPIGatewayUsagePlanAttachmentResourceKey, "bind_type","SERVICE"),
+					resource.TestCheckResourceAttr(testAPIGatewayUsagePlanAttachmentResourceKey, "environment", "test"),
+					resource.TestCheckResourceAttr(testAPIGatewayUsagePlanAttachmentResourceKey, "bind_type", "SERVICE"),
 				),
 			},
 			{
@@ -58,7 +58,7 @@ func testAccCheckAPIGatewayUsagePlanAttachmentDestroy(s *terraform.State) error 
 			apiId       = idMap["api_id"]
 
 			outErr error
-			has           bool
+			has    bool
 		)
 		if usagePlanId == "" || serviceId == "" || environment == "" || bindType == "" {
 			return fmt.Errorf("id is broken")
@@ -69,7 +69,7 @@ func testAccCheckAPIGatewayUsagePlanAttachmentDestroy(s *terraform.State) error 
 
 		service := APIGatewayService{client: testAccProvider.Meta().(*TencentCloudClient).apiV3Conn}
 
-		_, has, outErr= service.DescribeUsagePlan(ctx, usagePlanId)
+		_, has, outErr = service.DescribeUsagePlan(ctx, usagePlanId)
 		if outErr != nil {
 			_, has, outErr = service.DescribeUsagePlan(ctx, usagePlanId)
 		}
@@ -95,19 +95,19 @@ func testAccCheckAPIGatewayUsagePlanAttachmentDestroy(s *terraform.State) error 
 
 		if bindType == API_GATEWAY_TYPE_API {
 			plans, outErr = service.DescribeApiUsagePlan(ctx, serviceId)
-			if outErr!=nil{
+			if outErr != nil {
 				plans, outErr = service.DescribeApiUsagePlan(ctx, serviceId)
 			}
-			if outErr!=nil{
-				return  outErr
+			if outErr != nil {
+				return outErr
 			}
 		} else {
 			plans, outErr = service.DescribeServiceUsagePlan(ctx, serviceId)
-			if outErr!=nil{
+			if outErr != nil {
 				plans, outErr = service.DescribeServiceUsagePlan(ctx, serviceId)
 			}
-			if outErr!=nil{
-				return  outErr
+			if outErr != nil {
+				return outErr
 			}
 		}
 
@@ -115,10 +115,10 @@ func testAccCheckAPIGatewayUsagePlanAttachmentDestroy(s *terraform.State) error 
 			if *plan.UsagePlanId == usagePlanId && *plan.Environment == environment {
 				if bindType == API_GATEWAY_TYPE_API {
 					if plan.ApiId != nil && *plan.ApiId == apiId {
-						return fmt.Errorf("attachment  %s still exist on server",rs.Primary.ID)
+						return fmt.Errorf("attachment  %s still exist on server", rs.Primary.ID)
 					}
 				} else {
-					return fmt.Errorf("attachment  %s still exist on server",rs.Primary.ID)
+					return fmt.Errorf("attachment  %s still exist on server", rs.Primary.ID)
 				}
 			}
 		}
@@ -149,7 +149,7 @@ func testAccCheckAPIGatewayUsagePlanAttachmentExists(n string) resource.TestChec
 			apiId       = idMap["api_id"]
 
 			outErr error
-			has           bool
+			has    bool
 		)
 		if usagePlanId == "" || serviceId == "" || environment == "" || bindType == "" {
 			return fmt.Errorf("id is broken")
@@ -160,7 +160,7 @@ func testAccCheckAPIGatewayUsagePlanAttachmentExists(n string) resource.TestChec
 
 		service := APIGatewayService{client: testAccProvider.Meta().(*TencentCloudClient).apiV3Conn}
 
-		_, has, outErr= service.DescribeUsagePlan(ctx, usagePlanId)
+		_, has, outErr = service.DescribeUsagePlan(ctx, usagePlanId)
 		if outErr != nil {
 			_, has, outErr = service.DescribeUsagePlan(ctx, usagePlanId)
 		}
@@ -168,7 +168,7 @@ func testAccCheckAPIGatewayUsagePlanAttachmentExists(n string) resource.TestChec
 			return outErr
 		}
 		if !has {
-			return fmt.Errorf("usage plan %s not exsit on server",usagePlanId)
+			return fmt.Errorf("usage plan %s not exsit on server", usagePlanId)
 		}
 
 		_, has, outErr = service.DescribeService(ctx, serviceId)
@@ -179,26 +179,26 @@ func testAccCheckAPIGatewayUsagePlanAttachmentExists(n string) resource.TestChec
 			return outErr
 		}
 		if !has {
-			return fmt.Errorf("service %s not exsit on server",serviceId)
+			return fmt.Errorf("service %s not exsit on server", serviceId)
 		}
 
 		var plans []*apigateway.ApiUsagePlan
 
 		if bindType == API_GATEWAY_TYPE_API {
 			plans, outErr = service.DescribeApiUsagePlan(ctx, serviceId)
-			if outErr!=nil{
+			if outErr != nil {
 				plans, outErr = service.DescribeApiUsagePlan(ctx, serviceId)
 			}
-			if outErr!=nil{
-				return  outErr
+			if outErr != nil {
+				return outErr
 			}
 		} else {
 			plans, outErr = service.DescribeServiceUsagePlan(ctx, serviceId)
-			if outErr!=nil{
+			if outErr != nil {
 				plans, outErr = service.DescribeServiceUsagePlan(ctx, serviceId)
 			}
-			if outErr!=nil{
-				return  outErr
+			if outErr != nil {
+				return outErr
 			}
 		}
 		for _, plan := range plans {
@@ -208,11 +208,11 @@ func testAccCheckAPIGatewayUsagePlanAttachmentExists(n string) resource.TestChec
 						return nil
 					}
 				} else {
-					return  nil
+					return nil
 				}
 			}
 		}
-		return fmt.Errorf("attachment  %s not exist on server",rs.Primary.ID)
+		return fmt.Errorf("attachment  %s not exist on server", rs.Primary.ID)
 	}
 }
 

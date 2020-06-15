@@ -71,9 +71,9 @@ func dataSourceTencentCloudAPIGatewayServices() *schema.Resource {
 							Description: "Custom service name.",
 						},
 						"protocol": {
-							Type:         schema.TypeString,
+							Type:        schema.TypeString,
 							Computed:    true,
-							Description:  "Service frontend request type, such as `http`, `https`, and `http&https`.",
+							Description: "Service frontend request type, such as `http`, `https`, and `http&https`.",
 						},
 						"service_desc": {
 							Type:        schema.TypeString,
@@ -87,15 +87,15 @@ func dataSourceTencentCloudAPIGatewayServices() *schema.Resource {
 						},
 						"net_type": {
 							Type:     schema.TypeSet,
-							Computed:    true,
+							Computed: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 							Description: "Network type list, which is used to specify the supported network types. " +
 								"`INNER` indicates access over private network, and `OUTER` indicates access over public network.",
 						},
 						"ip_version": {
-							Type:         schema.TypeString,
+							Type:        schema.TypeString,
 							Computed:    true,
-							Description:  "IP version number. Valid values: `IPv4` (default value), `IPv6`.",
+							Description: "IP version number. Valid values: `IPv4` (default value), `IPv6`.",
 						},
 						"internal_sub_domain": {
 							Type:        schema.TypeString,
@@ -205,18 +205,18 @@ func dataSourceTencentCloudAPIGatewayServicesRead(data *schema.ResourceData, met
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 		apiGatewayService = APIGatewayService{client: meta.(*TencentCloudClient).apiV3Conn}
 
-		serviceName  = data.Get("service_name").(string)
-		serviceId = data.Get("service_id").(string)
-		services   []*apigateway.Service
+		serviceName = data.Get("service_name").(string)
+		serviceId   = data.Get("service_id").(string)
+		services    []*apigateway.Service
 
-		has bool
-		inErr ,outErr error
+		has           bool
+		inErr, outErr error
 	)
 
 	if outErr := resource.Retry(writeRetryTimeout, func() *resource.RetryError {
-		services, inErr = apiGatewayService.DescribeServicesStatus(ctx,serviceId,serviceName)
+		services, inErr = apiGatewayService.DescribeServicesStatus(ctx, serviceId, serviceName)
 		if inErr != nil {
-			return retryError(inErr,InternalError)
+			return retryError(inErr, InternalError)
 		}
 		return nil
 	}); outErr != nil {
@@ -238,7 +238,7 @@ func dataSourceTencentCloudAPIGatewayServicesRead(data *schema.ResourceData, met
 		}); outErr != nil {
 			return outErr
 		}
-		if !has{
+		if !has {
 			continue
 		}
 
@@ -281,7 +281,7 @@ func dataSourceTencentCloudAPIGatewayServicesRead(data *schema.ResourceData, met
 					"usage_plan_id":   item.UsagePlanId,
 					"usage_plan_name": item.UsagePlanName,
 					"bind_type":       API_GATEWAY_TYPE_SERVICE,
-					"api_id":"",
+					"api_id":          "",
 				})
 		}
 
@@ -301,32 +301,32 @@ func dataSourceTencentCloudAPIGatewayServicesRead(data *schema.ResourceData, met
 					"usage_plan_id":   item.UsagePlanId,
 					"usage_plan_name": item.UsagePlanName,
 					"bind_type":       API_GATEWAY_TYPE_API,
-					"api_id": item.ApiId,
+					"api_id":          item.ApiId,
 				})
 		}
 
 		list = append(list, map[string]interface{}{
-			"service_id":info.Response.ServiceId,
-			"service_name":info.Response.ServiceName,
-			"protocol":info.Response.Protocol,
-			"service_desc":info.Response.ServiceDesc,
-			"exclusive_set_name":info.Response.ExclusiveSetName,
-			"ip_version":info.Response.IpVersion,
-			"net_type": info.Response.NetTypes,
-			"internal_sub_domain":info.Response.InternalSubDomain,
-			"outer_sub_domain":info.Response.OuterSubDomain,
-			"inner_http_port":info.Response.InnerHttpPort,
-			"inner_https_port":info.Response.InnerHttpsPort,
-			"modify_time":info.Response.ModifiedTime,
-			"create_time":info.Response.CreatedTime,
-			"api_list":apiList,
-			"usage_plan_list":planList,
+			"service_id":          info.Response.ServiceId,
+			"service_name":        info.Response.ServiceName,
+			"protocol":            info.Response.Protocol,
+			"service_desc":        info.Response.ServiceDesc,
+			"exclusive_set_name":  info.Response.ExclusiveSetName,
+			"ip_version":          info.Response.IpVersion,
+			"net_type":            info.Response.NetTypes,
+			"internal_sub_domain": info.Response.InternalSubDomain,
+			"outer_sub_domain":    info.Response.OuterSubDomain,
+			"inner_http_port":     info.Response.InnerHttpPort,
+			"inner_https_port":    info.Response.InnerHttpsPort,
+			"modify_time":         info.Response.ModifiedTime,
+			"create_time":         info.Response.CreatedTime,
+			"api_list":            apiList,
+			"usage_plan_list":     planList,
 		})
 	}
 
 	byteId, err := json.Marshal(map[string]interface{}{
-		"service_name":   serviceName,
-		"service_id": serviceId,
+		"service_name": serviceName,
+		"service_id":   serviceId,
 	})
 	if err != nil {
 		return err

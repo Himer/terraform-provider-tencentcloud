@@ -94,7 +94,7 @@ func resourceTencentCloudAPIGatewayAPIKeyAttachmentCreate(data *schema.ResourceD
 	if outErr := resource.Retry(readRetryTimeout, func() *resource.RetryError {
 		_, has, inErr = apiGatewayService.DescribeUsagePlan(ctx, usagePlanId)
 		if inErr != nil {
-			return retryError(inErr,InternalError)
+			return retryError(inErr, InternalError)
 		}
 		return nil
 	}); outErr != nil {
@@ -109,7 +109,7 @@ func resourceTencentCloudAPIGatewayAPIKeyAttachmentCreate(data *schema.ResourceD
 	if outErr := resource.Retry(readRetryTimeout, func() *resource.RetryError {
 		_, has, inErr = apiGatewayService.DescribeApiKey(ctx, apiKeyId)
 		if inErr != nil {
-			return retryError(inErr,InternalError)
+			return retryError(inErr, InternalError)
 		}
 		return nil
 	}); outErr != nil {
@@ -121,7 +121,7 @@ func resourceTencentCloudAPIGatewayAPIKeyAttachmentCreate(data *schema.ResourceD
 
 	outErr = resource.Retry(writeRetryTimeout, func() *resource.RetryError {
 		if inErr = apiGatewayService.BindSecretId(ctx, usagePlanId, apiKeyId); inErr != nil {
-			return retryError(inErr,InternalError)
+			return retryError(inErr, InternalError)
 		}
 		return nil
 	})
@@ -135,7 +135,7 @@ func resourceTencentCloudAPIGatewayAPIKeyAttachmentCreate(data *schema.ResourceD
 	if outErr = resource.Retry(readRetryTimeout, func() *resource.RetryError {
 		info, has, inErr = apiGatewayService.DescribeUsagePlan(ctx, usagePlanId)
 		if inErr != nil {
-			return retryError(inErr,InternalError)
+			return retryError(inErr, InternalError)
 		}
 		if !has {
 			return nil
@@ -189,7 +189,7 @@ func resourceTencentCloudAPIGatewayAPIKeyAttachmentRead(data *schema.ResourceDat
 	if outErr = resource.Retry(readRetryTimeout, func() *resource.RetryError {
 		info, has, inErr = apiGatewayService.DescribeUsagePlan(ctx, usagePlanId)
 		if inErr != nil {
-			return retryError(inErr,InternalError)
+			return retryError(inErr, InternalError)
 		}
 		return nil
 	}); outErr != nil {
@@ -239,7 +239,7 @@ func resourceTencentCloudAPIGatewayAPIKeyAttachmentDelete(data *schema.ResourceD
 	if outErr = resource.Retry(readRetryTimeout, func() *resource.RetryError {
 		inErr = apiGatewayService.UnBindSecretId(ctx, usagePlanId, apiKeyId)
 		if inErr != nil {
-			return retryError(inErr,InternalError)
+			return retryError(inErr, InternalError)
 		}
 		return nil
 	}); outErr != nil {
@@ -250,7 +250,7 @@ func resourceTencentCloudAPIGatewayAPIKeyAttachmentDelete(data *schema.ResourceD
 	if outErr = resource.Retry(readRetryTimeout, func() *resource.RetryError {
 		info, has, inErr = apiGatewayService.DescribeUsagePlan(ctx, usagePlanId)
 		if inErr != nil {
-			return retryError(inErr,InternalError)
+			return retryError(inErr, InternalError)
 		}
 		if !has {
 			return nil

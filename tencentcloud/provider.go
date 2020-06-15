@@ -700,6 +700,7 @@ func Provider() terraform.ResourceProvider {
 			"tencentcloud_api_gateway_api_key_attachment":    resourceTencentCloudAPIGatewayAPIKeyAttachment(),
 			"tencentcloud_api_gateway_service":               resourceTencentCloudAPIGatewayService(),
 			"tencentcloud_api_gateway_usage_plan_attachment": resourceTencentCloudAPIGatewayUsagePlanAttachment(),
+			"tencentcloud_api_gateway_api":                   resourceTencentCloudAPIGatewayAPI(),
 		},
 
 		ConfigureFunc: providerConfigure,
