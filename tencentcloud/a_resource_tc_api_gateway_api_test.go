@@ -2,7 +2,6 @@ package tencentcloud
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -44,12 +43,6 @@ func TestAccTencentCloudAPIGateWayAPIResource(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      testAPIGatewayAPIResourceKey,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-
-			{
 				Config: testAccAPIGatewayAPIUpdate,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAPIGatewayAPIExists(testAPIGatewayAPIResourceKey),
@@ -86,19 +79,10 @@ func testAccCheckAPIGatewayAPIDestroy(s *terraform.State) error {
 			logId     = getLogId(contextNil)
 			ctx       = context.WithValue(context.TODO(), logIdKey, logId)
 			service   = APIGatewayService{client: testAccProvider.Meta().(*TencentCloudClient).apiV3Conn}
-			idMap     = make(map[string]string)
-			apiId     string
-			serviceId string
+			apiId     = rs.Primary.ID
+			serviceId = rs.Primary.Attributes["service_id"]
 		)
 
-		if outErr := json.Unmarshal([]byte(rs.Primary.ID), &idMap); outErr != nil {
-			return fmt.Errorf("id is broken,%s", outErr.Error())
-		}
-		serviceId = idMap["service_id"]
-		apiId = idMap["api_id"]
-		if serviceId == "" || apiId == "" {
-			return fmt.Errorf("id is broken")
-		}
 		_, has, err := service.DescribeApi(ctx, serviceId, apiId)
 		if err != nil {
 			_, has, err = service.DescribeApi(ctx, serviceId, apiId)
@@ -126,19 +110,9 @@ func testAccCheckAPIGatewayAPIExists(n string) resource.TestCheckFunc {
 			logId     = getLogId(contextNil)
 			ctx       = context.WithValue(context.TODO(), logIdKey, logId)
 			service   = APIGatewayService{client: testAccProvider.Meta().(*TencentCloudClient).apiV3Conn}
-			idMap     = make(map[string]string)
-			apiId     string
-			serviceId string
+			apiId     = rs.Primary.ID
+			serviceId = rs.Primary.Attributes["service_id"]
 		)
-
-		if outErr := json.Unmarshal([]byte(rs.Primary.ID), &idMap); outErr != nil {
-			return fmt.Errorf("id is broken,%s", outErr.Error())
-		}
-		serviceId = idMap["service_id"]
-		apiId = idMap["api_id"]
-		if serviceId == "" || apiId == "" {
-			return fmt.Errorf("id is broken")
-		}
 
 		_, has, err := service.DescribeApi(ctx, serviceId, apiId)
 		if err != nil {

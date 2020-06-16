@@ -754,3 +754,52 @@ func (me *APIGatewayService) DescribeServicesStatus(ctx context.Context,
 		offset += limit
 	}
 }
+
+func (me *APIGatewayService) DescribeApisStatus(ctx context.Context,
+	serviceId, apiName, apiId string) (infos []*apigateway.DesApisStatus, errRet error) {
+
+	request := apigateway.NewDescribeApisStatusRequest()
+	request.ServiceId = &serviceId
+
+	if apiId != "" || apiName != "" {
+		request.Filters = make([]*apigateway.Filter, 0, 2)
+		if apiId != "" {
+			request.Filters = append(request.Filters, &apigateway.Filter{Name: helper.String("ApiId"),
+				Values: []*string{
+					&apiId,
+				}})
+		}
+		if apiName != "" {
+			request.Filters = append(request.Filters, &apigateway.Filter{Name: helper.String("ApiName"),
+				Values: []*string{
+					&apiName,
+				}})
+		}
+	}
+
+	var limit int64 = 20
+	var offset int64 = 0
+
+	request.Limit = &limit
+	request.Offset = &offset
+
+	for {
+		ratelimit.Check(request.GetAction())
+		response, err := me.client.UseAPIGatewayClient().DescribeApisStatus(request)
+		if err != nil {
+			errRet = err
+			return
+		}
+		if response.Response.Result == nil {
+			errRet = fmt.Errorf("TencentCloud SDK %s return empty response", request.GetAction())
+			return
+		}
+		if len(response.Response.Result.ApiIdStatusSet) > 0 {
+			infos = append(infos, response.Response.Result.ApiIdStatusSet...)
+		}
+		if len(response.Response.Result.ApiIdStatusSet) < int(limit) {
+			return
+		}
+		offset += limit
+	}
+}

@@ -585,6 +585,7 @@ func Provider() terraform.ResourceProvider {
 			"tencentcloud_api_gateway_api_keys":         dataSourceTencentCloudAPIGatewayAPIKeys(),
 			"tencentcloud_api_gateway_usage_plans":      dataSourceTencentCloudAPIGatewayUsagePlans(),
 			"tencentcloud_api_gateway_services":         dataSourceTencentCloudAPIGatewayServices(),
+			"tencentcloud_api_gateway_apis":             dataSourceTencentCloudAPIGatewayAPIs(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{

@@ -92,20 +92,12 @@ resource "tencentcloud_api_gateway_api" "websock" {
 }
 ```
 
-Import
-
-api gateway api can be imported using the id, e.g.
-
-```
-$ terraform import tencentcloud_api_gateway_api.test '{"api_id":"api-04s7he14","service_id":"service-0ko7fzrc"}]'
-```
 
 */
 package tencentcloud
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -121,9 +113,7 @@ func resourceTencentCloudAPIGatewayAPI() *schema.Resource {
 		Read:   resourceTencentCloudAPIGatewayAPIRead,
 		Update: resourceTencentCloudAPIGatewayAPIUpdate,
 		Delete: resourceTencentCloudAPIGatewayAPIDelete,
-		Importer: &schema.ResourceImporter{
-			State: schema.ImportStatePassthrough,
-		},
+
 		Schema: map[string]*schema.Schema{
 			"service_id": {
 				Type:        schema.TypeString,
@@ -504,15 +494,7 @@ func resourceTencentCloudAPIGatewayAPICreate(data *schema.ResourceData, meta int
 		return fmt.Errorf("create api fail,return nil response")
 	}
 
-	id, err := json.Marshal(map[string]string{
-		"api_id":     *response.Response.Result.ApiId,
-		"service_id": serviceId,
-	})
-	if err != nil {
-		return fmt.Errorf("build id fail,reason:%s", err.Error())
-	}
-
-	data.SetId(string(id))
+	data.SetId(*response.Response.Result.ApiId)
 
 	return resourceTencentCloudAPIGatewayAPIRead(data, meta)
 
@@ -529,22 +511,12 @@ func resourceTencentCloudAPIGatewayAPIRead(data *schema.ResourceData, meta inter
 
 		outErr, inErr error
 
-		idMap     = make(map[string]string)
-		apiId     string
-		serviceId string
+		apiId     = data.Id()
+		serviceId = data.Get("service_id").(string)
 
 		info apigateway.ApiInfo
 		has  bool
 	)
-
-	if outErr = json.Unmarshal([]byte(data.Id()), &idMap); outErr != nil {
-		return fmt.Errorf("id is broken,%s", outErr.Error())
-	}
-	serviceId = idMap["service_id"]
-	apiId = idMap["api_id"]
-	if serviceId == "" || apiId == "" {
-		return fmt.Errorf("id is broken")
-	}
 
 	if outErr = resource.Retry(readRetryTimeout, func() *resource.RetryError {
 		info, has, inErr = apiGatewayService.DescribeApi(ctx, serviceId, apiId)
@@ -642,19 +614,9 @@ func resourceTencentCloudAPIGatewayAPIUpdate(data *schema.ResourceData, meta int
 		response      = apigateway.NewModifyApiResponse()
 		request       = apigateway.NewModifyApiRequest()
 
-		idMap     = make(map[string]string)
-		apiId     string
-		serviceId string
+		apiId     = data.Id()
+		serviceId = data.Get("service_id").(string)
 	)
-
-	if outErr = json.Unmarshal([]byte(data.Id()), &idMap); outErr != nil {
-		return fmt.Errorf("id is broken,%s", outErr.Error())
-	}
-	serviceId = idMap["service_id"]
-	apiId = idMap["api_id"]
-	if serviceId == "" || apiId == "" {
-		return fmt.Errorf("id is broken")
-	}
 
 	request.ServiceId = &serviceId
 	request.ApiId = &apiId
@@ -808,21 +770,10 @@ func resourceTencentCloudAPIGatewayAPIDelete(data *schema.ResourceData, meta int
 		logId             = getLogId(contextNil)
 		ctx               = context.WithValue(context.TODO(), logIdKey, logId)
 
-		outErr error
-
-		idMap     = make(map[string]string)
-		apiId     string
-		serviceId string
+		apiId     = data.Id()
+		serviceId = data.Get("service_id").(string)
 	)
 
-	if outErr = json.Unmarshal([]byte(data.Id()), &idMap); outErr != nil {
-		return fmt.Errorf("id is broken,%s", outErr.Error())
-	}
-	serviceId = idMap["service_id"]
-	apiId = idMap["api_id"]
-	if serviceId == "" || apiId == "" {
-		return fmt.Errorf("id is broken")
-	}
 	return resource.Retry(writeRetryTimeout, func() *resource.RetryError {
 		inErr := apiGatewayService.DeleteApi(ctx, serviceId, apiId)
 		if inErr != nil {
